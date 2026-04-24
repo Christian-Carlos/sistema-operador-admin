@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Painel de Operadores</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg1:#0f5bd8;--bg2:#24b7ff;--card:#ffffff;--text:#101828;--muted:#667085;--line:#d9e2ec;--primary:#1668e8;--primary-dark:#0e56c8;--soft:#f8fbff;--radius-xl:22px;--radius-md:12px;--shadow:0 12px 35px rgba(0,0,0,.15);}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
+    body{background:linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh;padding:20px;color:var(--text);}
+    .container{max-width:1250px;margin:0 auto;}
+    .card{background:var(--card);border-radius:var(--radius-xl);box-shadow:var(--shadow);padding:28px;}
+    .hidden{display:none !important;}
+    .top-title{text-align:center;color:#fff;margin-bottom:18px;}
+    .top-title h1{font-size:30px;font-weight:800;margin-bottom:6px;}
+    .top-title p{font-size:15px;opacity:.95;}
+    .login-wrap{max-width:480px;margin:30px auto 0 auto;}
+    .login-header{text-align:center;margin-bottom:24px;}
+    .login-header h2{color:var(--primary);font-size:28px;margin-bottom:8px;}
+    .login-header p{color:var(--muted);font-size:15px;}
+    .form-group{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+    .form-group label{font-size:14px;font-weight:700;}
+    .input{width:100%;border:1px solid var(--line);border-radius:var(--radius-md);padding:15px 16px;font-size:15px;outline:none;transition:.2s;background:#fff;}
+    .input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(22,104,232,.10);}
+    .senha-box{display:flex;gap:8px;}
+    .senha-box .input{flex:1;}
+    .toggle-btn{border:none;border-radius:var(--radius-md);background:#eef4ff;color:var(--primary);font-weight:700;padding:0 16px;cursor:pointer;min-width:95px;}
+    .btn{border:none;border-radius:var(--radius-md);padding:15px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.2s;}
+    .btn-primary{background:var(--primary);color:#fff;width:auto;}
+    .btn-primary:hover{background:var(--primary-dark);}
+    .btn-login{width:100%;}
+    .erro-login,.mini-msg{margin-top:14px;padding:12px 14px;border-radius:12px;font-size:14px;display:none;}
+    .erro-login,.mini-msg.err{background:#fff5f5;border:1px solid #f0c2c7;color:#a61b29;}
+    .mini-msg.ok{display:block;background:#ecfdf3;border:1px solid #b7ebc6;color:#067647;}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px;}
+    .brand-box h2{font-size:28px;color:var(--primary);margin-bottom:6px;}
+    .brand-box p{color:var(--muted);font-size:14px;}
+    .user-box{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:14px 16px;min-width:280px;}
+    .user-box strong{display:block;font-size:15px;margin-bottom:5px;}
+    .user-box span{color:var(--muted);font-size:13px;display:block;line-height:1.5;}
+    .toolbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+    .logout-btn,.btn-soft{background:#eef4ff;color:var(--primary);width:auto;padding:12px 18px;border:1px solid #d7e5ff;}
+    .filters{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 1fr 1fr 1fr 1fr;gap:14px;margin-bottom:20px;align-items:stretch;}
+    .stats{display:grid;grid-template-columns:repeat(4, 1fr);gap:14px;margin-bottom:20px;}
+    .stat-card{background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:18px;}
+    .stat-card .label{color:var(--muted);font-size:13px;margin-bottom:8px;}
+    .stat-card .value{font-size:28px;font-weight:800;color:var(--primary);}
+    .table-card{overflow:hidden;border:1px solid var(--line);border-radius:18px;background:#fff;}
+    .table-wrap{overflow:auto;max-height:580px;}
+    table{width:100%;border-collapse:collapse;min-width:980px;}
+    thead th{position:sticky;top:0;background:#f8fbff;z-index:1;text-align:left;font-size:13px;color:#475467;font-weight:800;padding:14px 14px;border-bottom:1px solid var(--line);}
+    tbody td{padding:14px;border-bottom:1px solid #edf2f7;font-size:14px;vertical-align:middle;}
+    tbody tr:hover{background:#f8fbff;}
+    .nome-link{color:var(--primary);font-weight:700;cursor:pointer;}
+    .badge{display:inline-flex;align-items:center;justify-content:center;min-width:92px;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid transparent;}
+    .badge-ativo{background:#ecfdf3;color:#067647;border-color:#b7ebc6;}
+    .badge-inativo{background:#fff6ed;color:#b54708;border-color:#f7d7b5;}
+    .empty-box{text-align:center;padding:40px 20px;color:var(--muted);}
+    .ficha-header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:22px;}
+    .ficha-header h2{color:var(--primary);font-size:28px;margin-bottom:8px;}
+    .ficha-header p{color:var(--muted);font-size:14px;line-height:1.6;}
+    .ficha-actions{display:flex;gap:10px;flex-wrap:wrap;}
+    .grid-ficha{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;}
+    .section{border:1px solid var(--line);border-radius:18px;background:#fff;overflow:hidden;}
+    .section-header{background:#f8fbff;border-bottom:1px solid var(--line);padding:14px 16px;font-weight:800;color:#344054;font-size:14px;}
+    .section-body{padding:16px;}
+    .kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;}
+    .kv{background:#fbfcfe;border:1px solid #edf2f7;border-radius:14px;padding:12px 14px;min-height:70px;}
+    .kv .k{display:block;color:var(--muted);font-size:12px;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.02em;}
+    .kv .v{font-size:14px;line-height:1.5;word-break:break-word;}
+    .texto-box{background:#fbfcfe;border:1px solid #edf2f7;border-radius:14px;padding:14px;line-height:1.7;font-size:14px;white-space:pre-wrap;word-break:break-word;min-height:92px;}
+    .anexos{display:grid;gap:12px;}
+    .anexo-item{border:1px solid #edf2f7;border-radius:14px;padding:14px;background:#fbfcfe;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+    .anexo-info strong{display:block;margin-bottom:5px;font-size:14px;}
+    .anexo-info span{color:var(--muted);font-size:13px;line-height:1.5;}
+    .foto-preview{width:160px;height:200px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;}
+    .foto-preview img{width:100%;height:100%;object-fit:cover;display:block;}
+    .foto-placeholder{color:var(--muted);font-size:13px;text-align:center;padding:14px;line-height:1.5;}
+    .full{grid-column:1 / -1;}
+    .loading{text-align:center;padding:22px;color:var(--muted);font-size:14px;}
+    .modal-overlay{position:fixed;inset:0;background:rgba(16,24,40,.55);display:flex;align-items:center;justify-content:center;padding:18px;z-index:9999;}
+    .modal-card{width:min(1120px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:22px;box-shadow:0 20px 40px rgba(0,0,0,.22);padding:22px;}
+    .modal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+    .modal-header h3{color:var(--primary);font-size:24px;margin-bottom:6px;}
+    .modal-header p{color:var(--muted);font-size:14px;}
+    .modal-actions{display:flex;gap:10px;flex-wrap:wrap;}
+    .admin-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;}
+    .admin-list{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff;}
+    .admin-list-wrap{max-height:420px;overflow:auto;}
+    textarea.input{min-height:96px;resize:vertical;}
+    .audit-filters{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr auto;gap:12px;margin-bottom:16px;}
+    .audit-detail{white-space:pre-wrap;word-break:break-word;line-height:1.55;font-size:13px;}
+    .audit-chip{display:inline-flex;padding:6px 10px;border-radius:999px;background:#eef4ff;color:var(--primary);font-size:12px;font-weight:800;border:1px solid #d7e5ff;}
+    @media (max-width:980px){.filters,.audit-filters{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.grid-ficha,.admin-grid{grid-template-columns:1fr}}
+    @media (max-width:640px){body{padding:14px}.card,.modal-card{padding:18px}.top-title h1,.brand-box h2,.ficha-header h2,.login-header h2,.modal-header h3{font-size:22px}.filters,.stats,.kv-grid,.audit-filters{grid-template-columns:1fr}.toolbar{align-items:stretch}.user-box{min-width:0;width:100%}.senha-box{flex-direction:column}.toggle-btn{min-height:46px}.toolbar-actions,.ficha-actions,.modal-actions{width:100%}.toolbar-actions .btn,.ficha-actions .btn,.modal-actions .btn{width:100%}}
+  
+.badge-warning {
+  background: #fff4e5;
+  color: #b54708;
+  border-color: #f7d7b5;
+}
+.badge-info {
+  background: #eef4ff;
+  color: #1668e8;
+  border-color: #d7e5ff;
+}
+.badge-success {
+  background: #ecfdf3;
+  color: #067647;
+  border-color: #b7ebc6;
+}
+
+.btn{
+  position:relative;
+  transform:translateY(0);
+}
+.btn:hover{
+  transform:translateY(-1px);
+}
+.btn:active{
+  transform:scale(.98);
+}
+.btn.is-loading{
+  opacity:.85;
+  pointer-events:none;
+}
+.btn.is-loading::after{
+  content:'';
+  width:16px;
+  height:16px;
+  border:2px solid rgba(255,255,255,.45);
+  border-top-color:#fff;
+  border-radius:50%;
+  display:inline-block;
+  margin-left:10px;
+  vertical-align:middle;
+  animation:spin .8s linear infinite;
+}
+.btn-soft.is-loading::after,
+.logout-btn.is-loading::after{
+  border:2px solid rgba(22,104,232,.25);
+  border-top-color:#1668e8;
+}
+.card,
+.modal-card,
+.section,
+.table-card{
+  transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.fade-in{
+  animation:fadeIn .22s ease;
+}
+.app-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(16,24,40,.18);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10000;
+  backdrop-filter:blur(1px);
+}
+.app-overlay.hidden{
+  display:none !important;
+}
+.app-overlay-box{
+  background:#fff;
+  border-radius:18px;
+  padding:18px 22px;
+  box-shadow:0 20px 40px rgba(0,0,0,.18);
+  display:flex;
+  align-items:center;
+  gap:12px;
+  color:#344054;
+  font-weight:700;
+}
+.app-spinner{
+  width:20px;
+  height:20px;
+  border:3px solid rgba(22,104,232,.18);
+  border-top-color:#1668e8;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{
+  to{ transform:rotate(360deg); }
+}
+@keyframes fadeIn{
+  from{ opacity:.0; transform:translateY(6px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+
+.nome-cell{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.nome-avatar{
+  width:42px;
+  height:42px;
+  min-width:42px;
+  border-radius:50%;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.nome-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.nome-avatar-placeholder{
+  font-size:10px;
+  color:var(--muted);
+  font-weight:800;
+}
+.nome-texto{
+  min-width:0;
+}
+.nome-texto .nome-link{
+  display:block;
+  line-height:1.25;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top-title">
+    <h1>Painel de Operadores</h1>
+    <p>Sistema interno para consulta e visualização dos currículos cadastrados</p>
+  </div>
+
+  <div id="telaLogin" class="login-wrap">
+    <div class="card">
+      <div class="login-header">
+        <h2>Acesso interno</h2>
+        <p>Entre com matrícula e senha do operador</p>
+      </div>
+      <div class="form-group">
+        <label for="matricula">Matrícula</label>
+        <input id="matricula" class="input" type="text" placeholder="Digite a matrícula" onkeypress="if(event.key==='Enter'){login();}">
+      </div>
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <div class="senha-box">
+          <input id="senha" class="input" type="password" placeholder="Digite a senha" onkeypress="if(event.key==='Enter'){login();}">
+          <button type="button" class="toggle-btn" onclick="alternarSenha(this)">Mostrar</button>
+        </div>
+      </div>
+      <button id="btnEntrar" class="btn btn-primary btn-login" onclick="login()">Entrar no painel</button>
+      <div id="erroLogin" class="erro-login"></div>
+    </div>
+  </div>
+
+  <div id="telaPainel" class="hidden">
+    <div class="card">
+      <div class="toolbar">
+        <div class="brand-box">
+          <h2>Consulta de currículos</h2>
+          <p>Visualize os registros e abra a ficha completa de cada candidato</p>
+        </div>
+        <div class="user-box">
+          <strong id="usuarioLogado">Operador</strong>
+          <span id="perfilLogado">Perfil</span>
+          <span id="matriculaLogado">Matrícula</span>
+        </div>
+        <div class="toolbar-actions">
+          <button id="btnHistoricoStatus" class="btn btn-soft hidden" onclick="abrirModalHistoricoStatus()">Histórico de status</button>
+          <button id="btnAuditoria" class="btn btn-soft hidden" onclick="abrirModalAuditoria()">Tela de auditoria</button>
+          <button id="btnGerenciarOperadores" class="btn btn-soft hidden" onclick="abrirModalOperadores()">Gerenciar operadores</button>
+          <button class="btn logout-btn" onclick="logout()">Sair</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card"><div class="label">Total de cadastros</div><div class="value" id="statTotal">0</div></div>
+        <div class="stat-card"><div class="label">Cadastros ativos</div><div class="value" id="statAtivos">0</div></div>
+        <div class="stat-card"><div class="label">Cadastros inativos</div><div class="value" id="statInativos">0</div></div>
+        <div class="stat-card"><div class="label">Resultados na busca</div><div class="value" id="statFiltrados">0</div></div>
+      </div>
+
+      <div class="filters">
+        <input id="buscaTexto" class="input" type="text" placeholder="Pesquisar por nome, CPF, e-mail ou área de atuação" oninput="filtrarCadastros()">
+        <select id="filtroStatus" class="input" onchange="filtrarCadastros()">
+          <option value="">Todos os status</option>
+          <option value="ATIVO">ATIVO</option>
+          <option value="INATIVO">INATIVO</option>
+          <option value="AGUARDANDO CARTA">AGUARDANDO CARTA</option>
+          <option value="ENCAMINHADO">ENCAMINHADO</option>
+          <option value="CONTRATADO">CONTRATADO</option>
+        </select>
+        <input id="filtroCpf" class="input" type="text" placeholder="Filtrar CPF" oninput="filtrarCadastros()">
+        <input id="filtroArea" class="input" type="text" placeholder="Filtrar área de atuação" oninput="filtrarCadastros()">
+        <select id="filtroEscolaridade" class="input" onchange="filtrarCadastros()">
+          <option value="">Todas as escolaridades</option>
+          <option value="Ensino fundamental incompleto">Ensino fundamental incompleto</option>
+          <option value="Ensino fundamental completo">Ensino fundamental completo</option>
+          <option value="Ensino médio incompleto">Ensino médio incompleto</option>
+          <option value="Ensino médio completo">Ensino médio completo</option>
+          <option value="Ensino tecnico incompleto">Ensino tecnico incompleto</option>
+          <option value="Ensino técnico completo">Ensino técnico completo</option>
+          <option value="Ensino superior incompleto">Ensino superior incompleto</option>
+          <option value="Ensino superior completo">Ensino superior completo</option>
+          <option value="Pós-graduação incompleta">Pós-graduação incompleta</option>
+          <option value="Pós-graduação completa">Pós-graduação completa</option>
+          <option value="Mestrado incompleto">Mestrado incompleto</option>
+          <option value="Mestrado completo">Mestrado completo</option>
+          <option value="Doutorado incompleto">Doutorado incompleto</option>
+          <option value="Doutorado completo">Doutorado completo</option>
+        </select>
+        <select id="filtroPcd" class="input" onchange="filtrarCadastros()">
+          <option value="">É PCD? (todos)</option>
+          <option value="SIM">SIM</option>
+          <option value="NÃO">NÃO</option>
+        </select>
+        <select id="filtroCnh" class="input" onchange="filtrarCadastros()">
+          <option value="">Possui CNH? (todos)</option>
+          <option value="SIM">SIM</option>
+          <option value="NÃO">NÃO</option>
+        </select>
+        <input id="filtroCategoriaCnh" class="input" type="text" placeholder="Filtrar categoria CNH" oninput="filtrarCadastros()">
+      </div>
+
+      <div class="table-card"><div class="table-wrap"><table><thead><tr><th>Nome completo</th><th>CPF</th><th>Telefone</th><th>E-mail</th><th>Escolaridade</th><th>Área de atuação</th><th>Status</th><th>Data cadastro</th></tr></thead><tbody id="tbodyCadastros"><tr><td colspan="8" class="loading">Carregando dados...</td></tr></tbody></table></div></div>
+    </div>
+  </div>
+
+  <div id="telaFicha" class="hidden">
+    <div class="card">
+      <div class="ficha-header">
+        <div><h2>Ficha do candidato</h2><p id="subtituloFicha">Visualização completa dos dados cadastrais</p></div>
+        <div class="ficha-actions">
+          <button id="btnEditarCadastro" class="btn btn-soft hidden" onclick="abrirModalEditarCadastro()">Editar cadastro</button>
+          <button class="btn btn-soft" onclick="voltarPainel()">Voltar para lista</button>
+        </div>
+      </div>
+
+      <div class="grid-ficha">
+        <div class="section"><div class="section-header">Dados principais</div><div class="section-body"><div class="kv-grid">
+          <div class="kv"><span class="k">ID</span><div class="v" id="f_id"></div></div>
+          <div class="kv"><span class="k">Status</span><div class="v" id="f_status"></div></div>
+          <div class="kv"><span class="k">Nome completo</span><div class="v" id="f_nome"></div></div>
+          <div class="kv"><span class="k">CPF</span><div class="v" id="f_cpf"></div></div>
+          <div class="kv"><span class="k">RG</span><div class="v" id="f_rg"></div></div>
+          <div class="kv"><span class="k">Data de nascimento</span><div class="v" id="f_dataNasc"></div></div>
+          <div class="kv"><span class="k">Idade</span><div class="v" id="f_idade"></div></div>
+          <div class="kv"><span class="k">Gênero</span><div class="v" id="f_genero"></div></div>
+        </div></div></div>
+
+        <div class="section"><div class="section-header">Foto 3x4</div><div class="section-body"><div class="foto-preview"><div class="foto-placeholder" id="fotoPlaceholder">Nenhuma foto cadastrada</div><img id="fotoPreview" class="hidden" src="" alt="Foto do candidato"></div></div></div>
+
+        <div class="section"><div class="section-header">Contato e endereço</div><div class="section-body"><div class="kv-grid">
+          <div class="kv"><span class="k">Telefone</span><div class="v" id="f_telefone"></div></div>
+          <div class="kv"><span class="k">E-mail</span><div class="v" id="f_email"></div></div>
+          <div class="kv"><span class="k">CEP</span><div class="v" id="f_cep"></div></div>
+          <div class="kv"><span class="k">Endereço</span><div class="v" id="f_endereco"></div></div>
+        </div></div></div>
+
+        <div class="section"><div class="section-header">Formação e atuação</div><div class="section-body"><div class="kv-grid">
+          <div class="kv"><span class="k">Escolaridade</span><div class="v" id="f_escolaridade"></div></div>
+          <div class="kv"><span class="k">Cursos</span><div class="v" id="f_cursos"></div></div>
+          <div class="kv"><span class="k">Área de atuação</span><div class="v" id="f_area"></div></div>
+          <div class="kv"><span class="k">Objetivo profissional</span><div class="v" id="f_objetivo"></div></div>
+        </div></div></div>
+
+        <div class="section"><div class="section-header">Informações adicionais</div><div class="section-body"><div class="kv-grid">
+          <div class="kv"><span class="k">Estado civil</span><div class="v" id="f_estadoCivil"></div></div>
+          <div class="kv"><span class="k">Possui filhos</span><div class="v" id="f_filhos"></div></div>
+          <div class="kv"><span class="k">É PCD?</span><div class="v" id="f_pcd"></div></div>
+          <div class="kv"><span class="k">Possui CNH</span><div class="v" id="f_cnh"></div></div>
+          <div class="kv"><span class="k">Categoria CNH</span><div class="v" id="f_categoriaCnh"></div></div>
+          <div class="kv"><span class="k">Idioma</span><div class="v" id="f_idioma"></div></div>
+          <div class="kv"><span class="k">1º Emprego</span><div class="v" id="f_primeiroEmprego"></div></div>
+        </div></div></div>
+
+        <div class="section full"><div class="section-header">Experiência profissional</div><div class="section-body"><div class="texto-box" id="f_experiencia"></div></div></div>
+
+        <div class="section full"><div class="section-header">Arquivos anexados</div><div class="section-body"><div class="anexos">
+          <div class="anexo-item"><div class="anexo-info"><strong>Foto cadastrada</strong><span id="textoFoto">Nenhum arquivo disponível.</span></div><button class="btn btn-soft" id="btnAbrirFoto" onclick="abrirLinkAtual('foto')">Abrir arquivo</button></div>
+          <div class="anexo-item"><div class="anexo-info"><strong>Currículo</strong><span id="textoCurriculo">Nenhum arquivo disponível.</span></div><button class="btn btn-soft" id="btnAbrirCurriculo" onclick="abrirLinkAtual('curriculo')">Abrir arquivo</button></div>
+          <div class="anexo-item"><div class="anexo-info"><strong>Comprovante de escolaridade</strong><span id="textoComprovante">Nenhum arquivo disponível.</span></div><button class="btn btn-soft" id="btnAbrirComprovante" onclick="abrirLinkAtual('comprovante')">Abrir arquivo</button></div>
+        </div></div></div>
+
+        <div class="section full"><div class="section-header">Controle do cadastro</div><div class="section-body"><div class="kv-grid">
+          <div class="kv"><span class="k">Data de cadastro</span><div class="v" id="f_dataCadastro"></div></div>
+          <div class="kv"><span class="k">Última atualização</span><div class="v" id="f_dataAtualizacao"></div></div>
+        </div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="appOverlay" class="app-overlay hidden">
+  <div class="app-overlay-box">
+    <div class="app-spinner"></div>
+    <div id="appOverlayText">Processando...</div>
+  </div>
+</div>
+
+<div id="modalOperadores" class="modal-overlay hidden"><div class="modal-card">
+  <div class="modal-header"><div><h3>Gerenciar operadores</h3><p>Área exclusiva para administrador.</p></div><div class="modal-actions"><button class="btn btn-soft" onclick="fecharModalOperadores()">Fechar</button></div></div>
+  <div class="form-group"><label for="senhaAdminOperadores">Senha do administrador</label><input id="senhaAdminOperadores" class="input" type="password" placeholder="Digite sua senha de administrador"></div>
+  <div class="admin-grid">
+    <div class="admin-list"><div class="section-header">Lista de operadores</div><div class="admin-list-wrap"><table><thead><tr><th>Matrícula</th><th>Nome</th><th>Perfil</th><th>Status</th><th>Troca senha?</th><th>Ação</th></tr></thead><tbody id="tbodyOperadores"><tr><td colspan="6" class="loading">Informe a senha do administrador e clique em carregar.</td></tr></tbody></table></div></div>
+    <div class="section"><div class="section-header">Cadastro / edição de operador</div><div class="section-body">
+      <div class="form-group"><label for="opMatricula">Matrícula</label><input id="opMatricula" class="input" type="text" placeholder="Ex.: 1001"></div>
+      <div class="form-group"><label for="opNome">Nome</label><input id="opNome" class="input" type="text" placeholder="Nome do operador"></div>
+      <div class="form-group"><label for="opSenha">Senha</label><input id="opSenha" class="input" type="text" placeholder="Obrigatória no cadastro. Na edição, só preencha se quiser trocar."></div>
+      <div class="kv-grid">
+        <div class="form-group"><label for="opPerfil">Perfil</label><select id="opPerfil" class="input"><option value="OPERADOR">OPERADOR</option><option value="ADMIN">ADMIN</option></select></div>
+        <div class="form-group"><label for="opStatus">Status</label><select id="opStatus" class="input"><option value="ATIVO">ATIVO</option>
+<option value="INATIVO">INATIVO</option>
+<option value="AGUARDANDO CARTA">AGUARDANDO CARTA</option>
+<option value="ENCAMINHADO">ENCAMINHADO</option>
+<option value="CONTRATADO">CONTRATADO</option></select></div>
+        <div class="form-group"><label for="opTrocarSenha">Troca de senha obrigatória</label><select id="opTrocarSenha" class="input"><option value="NÃO">NÃO</option><option value="SIM">SIM</option></select></div>
+      </div>
+      <div class="form-group"><label for="opObservacao">Observação</label><textarea id="opObservacao" class="input" placeholder="Observação do operador"></textarea></div>
+      <div class="modal-actions"><button class="btn btn-soft" onclick="limparFormularioOperador()">Novo operador</button><button class="btn btn-primary" id="btnSalvarOperador" onclick="salvarOperadorAdmin()">Salvar operador</button><button class="btn btn-soft" id="btnCarregarOperadores" onclick="carregarOperadoresAdmin()">Carregar lista</button></div>
+      <div id="msgOperadores" class="mini-msg"></div>
+    </div></div>
+  </div>
+</div></div>
+
+<div id="modalEditarCadastro" class="modal-overlay hidden"><div class="modal-card">
+  <div class="modal-header"><div><h3>Editar cadastro</h3><p>Alteração protegida por senha do administrador com auditoria detalhada de antes e depois.</p></div><div class="modal-actions"><button class="btn btn-soft" onclick="fecharModalEditarCadastro()">Fechar</button></div></div>
+  <div class="form-group"><label for="editSenhaAdmin">Senha do administrador</label><input id="editSenhaAdmin" class="input" type="password" placeholder="Digite sua senha de administrador para salvar as alterações"></div>
+  <div class="kv-grid">
+    <div class="form-group"><label for="editNome">Nome completo</label><input id="editNome" class="input" type="text"></div>
+    <div class="form-group"><label for="editCpf">CPF</label><input id="editCpf" class="input" type="text"></div>
+    <div class="form-group"><label for="editRg">RG</label><input id="editRg" class="input" type="text"></div>
+    <div class="form-group"><label for="editDataNasc">Data de nascimento</label><input id="editDataNasc" class="input" type="date"></div>
+    <div class="form-group"><label for="editTelefone">Telefone</label><input id="editTelefone" class="input" type="text"></div>
+    <div class="form-group"><label for="editEmail">E-mail</label><input id="editEmail" class="input" type="text"></div>
+    <div class="form-group"><label for="editCep">CEP</label><input id="editCep" class="input" type="text"></div>
+    <div class="form-group"><label for="editEndereco">Endereço</label><input id="editEndereco" class="input" type="text"></div>
+    <div class="form-group"><label for="editGenero">Gênero</label><input id="editGenero" class="input" type="text"></div>
+    <div class="form-group"><label for="editIdade">Idade</label><input id="editIdade" class="input" type="text"></div>
+    <div class="form-group"><label for="editEscolaridade">Escolaridade</label><select id="editEscolaridade" class="input">
+      <option value="">Selecione</option><option value="Ensino fundamental incompleto">Ensino fundamental incompleto</option><option value="Ensino fundamental completo">Ensino fundamental completo</option><option value="Ensino médio incompleto">Ensino médio incompleto</option><option value="Ensino médio completo">Ensino médio completo</option><option value="Ensino tecnico incompleto">Ensino tecnico incompleto</option><option value="Ensino técnico completo">Ensino técnico completo</option><option value="Ensino superior incompleto">Ensino superior incompleto</option><option value="Ensino superior completo">Ensino superior completo</option><option value="Pós-graduação incompleta">Pós-graduação incompleta</option><option value="Pós-graduação completa">Pós-graduação completa</option><option value="Mestrado incompleto">Mestrado incompleto</option><option value="Mestrado completo">Mestrado completo</option><option value="Doutorado incompleto">Doutorado incompleto</option><option value="Doutorado completo">Doutorado completo</option>
+    </select></div>
+    <div class="form-group"><label for="editEstadoCivil">Estado Civil</label><input id="editEstadoCivil" class="input" type="text"></div>
+    <div class="form-group"><label for="editFilhos">Possui Filhos</label><input id="editFilhos" class="input" type="text"></div>
+    <div class="form-group"><label for="editPcd">É PCD?</label><input id="editPcd" class="input" type="text"></div>
+    <div class="form-group"><label for="editCnh">Possui CNH</label><input id="editCnh" class="input" type="text"></div>
+    <div class="form-group"><label for="editCategoriaCnh">Categoria da CNH</label><input id="editCategoriaCnh" class="input" type="text"></div>
+    <div class="form-group"><label for="editIdioma">Fala algum idioma</label><input id="editIdioma" class="input" type="text"></div>
+    <div class="form-group"><label for="editPrimeiroEmprego">1º Emprego</label><input id="editPrimeiroEmprego" class="input" type="text"></div>
+    <div class="form-group"><label for="editStatus">Status</label><select id="editStatus" class="input"><option value="ATIVO">ATIVO</option>
+<option value="INATIVO">INATIVO</option>
+<option value="AGUARDANDO CARTA">AGUARDANDO CARTA</option>
+<option value="ENCAMINHADO">ENCAMINHADO</option>
+<option value="CONTRATADO">CONTRATADO</option></select></div>
+    <div class="form-group full"><label for="editCursos">Cursos</label><textarea id="editCursos" class="input"></textarea></div>
+    <div class="form-group full"><label for="editArea">Área de atuação</label><input id="editArea" class="input" type="text"></div>
+    <div class="form-group full"><label for="editObjetivo">Objetivo profissional</label><textarea id="editObjetivo" class="input"></textarea></div>
+    <div class="form-group full"><label for="editExperiencia">Experiência profissional</label><textarea id="editExperiencia" class="input"></textarea></div>
+  </div>
+  <div class="modal-actions"><button class="btn btn-primary" id="btnSalvarEdicaoCadastro" onclick="salvarEdicaoCadastro()">Salvar alterações</button></div>
+  <div id="msgEditarCadastro" class="mini-msg"></div>
+</div></div>
+
+<div id="modalTrocaSenhaObrigatoria" class="modal-overlay hidden"><div class="modal-card" style="width:min(560px,100%);">
+  <div class="modal-header"><div><h3>Troca de senha obrigatória</h3><p>Seu acesso foi liberado, mas antes de continuar você precisa definir uma nova senha.</p></div></div>
+  <div class="form-group"><label for="trocaSenhaAtual">Senha atual</label><input id="trocaSenhaAtual" class="input" type="password"></div>
+  <div class="form-group"><label for="trocaNovaSenha">Nova senha</label><input id="trocaNovaSenha" class="input" type="password"></div>
+  <div class="form-group"><label for="trocaConfirmarSenha">Confirmar nova senha</label><input id="trocaConfirmarSenha" class="input" type="password"></div>
+  <div class="modal-actions"><button class="btn btn-primary" id="btnSalvarNovaSenha" onclick="salvarTrocaObrigatoriaSenha()">Salvar nova senha</button></div>
+  <div id="msgTrocaSenhaObrigatoria" class="mini-msg"></div>
+</div></div>
+
+<div id="modalAuditoria" class="modal-overlay hidden"><div class="modal-card">
+  <div class="modal-header"><div><h3>Tela de auditoria</h3><p>Consulta interna do histórico do sistema.</p></div><div class="modal-actions"><button class="btn btn-soft" onclick="fecharModalAuditoria()">Fechar</button></div></div>
+  <div class="form-group"><label for="senhaAdminAuditoria">Senha do administrador</label><input id="senhaAdminAuditoria" class="input" type="password" placeholder="Digite sua senha de administrador"></div>
+  <div class="audit-filters">
+    <input id="auditTermo" class="input" type="text" placeholder="Buscar em nome, ação, detalhe, matrícula...">
+    <select id="auditAcao" class="input"><option value="">Todas as ações</option><option value="LOGIN_OK">LOGIN_OK</option><option value="LOGIN_ERRO">LOGIN_ERRO</option><option value="LOGIN_BLOQUEADO">LOGIN_BLOQUEADO</option><option value="ABRIU_CADASTRO">ABRIU_CADASTRO</option><option value="ADMIN_CADASTROU_OPERADOR">ADMIN_CADASTROU_OPERADOR</option><option value="ADMIN_EDITOU_OPERADOR">ADMIN_EDITOU_OPERADOR</option><option value="ADMIN_EDITOU_CADASTRO">ADMIN_EDITOU_CADASTRO</option><option value="TROCOU_SENHA_OBRIGATORIA">TROCOU_SENHA_OBRIGATORIA</option></select>
+    <input id="auditMatricula" class="input" type="text" placeholder="Filtrar matrícula">
+    <input id="auditCpf" class="input" type="text" placeholder="Filtrar CPF">
+    <button class="btn btn-primary" id="btnCarregarAuditoria" onclick="carregarAuditoriaAdmin()">Carregar</button>
+  </div>
+  <div class="table-card"><div class="table-wrap" style="max-height:540px;"><table><thead><tr><th>Data/Hora</th><th>Matrícula</th><th>Nome</th><th>Perfil</th><th>Ação</th><th>CPF</th><th>Detalhes</th></tr></thead><tbody id="tbodyAuditoria"><tr><td colspan="7" class="loading">Informe a senha do administrador e clique em carregar.</td></tr></tbody></table></div></div>
+  <div id="msgAuditoria" class="mini-msg"></div>
+</div></div>
+
+
+<div id="modalHistoricoStatus" class="modal-overlay hidden"><div class="modal-card">
+  <div class="modal-header">
+    <div>
+      <h3>Histórico de status</h3>
+      <p>Linha do tempo exclusiva das mudanças de status dos candidatos, separada da auditoria geral.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-soft" onclick="fecharModalHistoricoStatus()">Fechar</button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="senhaAdminHistoricoStatus">Senha do administrador</label>
+    <input id="senhaAdminHistoricoStatus" class="input" type="password" placeholder="Digite sua senha de administrador">
+  </div>
+
+  <div class="audit-filters">
+    <input id="statusNome" class="input" type="text" placeholder="Filtrar nome do candidato">
+    <input id="statusCpf" class="input" type="text" placeholder="Filtrar CPF">
+    <select id="statusFiltro" class="input">
+      <option value="">Todos os status</option>
+      <option value="ATIVO">ATIVO</option>
+      <option value="INATIVO">INATIVO</option>
+      <option value="AGUARDANDO CARTA">AGUARDANDO CARTA</option>
+      <option value="ENCAMINHADO">ENCAMINHADO</option>
+      <option value="CONTRATADO">CONTRATADO</option>
+    </select>
+    <div></div>
+    <button class="btn btn-primary" id="btnCarregarHistoricoStatus" onclick="carregarHistoricoStatusAdmin()">Carregar</button>
+  </div>
+
+  <div class="table-card">
+    <div class="table-wrap" style="max-height:540px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Data/Hora</th>
+            <th>Candidato</th>
+            <th>CPF</th>
+            <th>Status anterior</th>
+            <th>Novo status</th>
+            <th>Alterado por</th>
+            <th>Perfil</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyHistoricoStatus">
+          <tr><td colspan="7" class="loading">Informe a senha do administrador e clique em carregar.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="msgHistoricoStatus" class="mini-msg"></div>
+</div></div>
+
+<script>
+let operadorLogado=null, operadorPendenteTrocaSenha=null, listaCadastros=[], listaFiltrada=[], cadastroAtual=null, autoRefreshTimer=null;
+function normalizarTexto(v){return String(v||'').trim();}
+function normalizarCPF(v){return String(v||'').replace(/\D/g,'').trim();}
+function escaparHtml(t){return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#039;');}
+function formatarDataParaInput(v){const t=normalizarTexto(v); if(!t) return ''; const p=t.split('/'); return p.length===3?`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`:t;}
+function ehAdmin(){return !!(operadorLogado && (operadorLogado.isAdmin || String(operadorLogado.perfil||'').toUpperCase()==='ADMIN'));}
+function alternarSenha(b){const c=document.getElementById('senha'); if(c.type==='password'){c.type='text';b.textContent='Ocultar';} else {c.type='password';b.textContent='Mostrar';}}
+function mostrarErroLogin(m){const b=document.getElementById('erroLogin'); b.style.display='block'; b.textContent=m||'Falha ao autenticar.';}
+function limparErroLogin(){const b=document.getElementById('erroLogin'); b.style.display='none'; b.textContent='';}
+function mostrarMensagem(id,tipo,texto){const e=document.getElementById(id); e.className='mini-msg '+(tipo||''); e.style.display='block'; e.textContent=texto||'';}
+function limparMensagem(id){const e=document.getElementById(id); e.className='mini-msg'; e.style.display='none'; e.textContent='';}
+function configurarAcessosAdmin(){
+  ['btnGerenciarOperadores','btnAuditoria'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    if(ehAdmin()) el.classList.remove('hidden');
+    else el.classList.add('hidden');
+  });
+
+  const btnEditar=document.getElementById('btnEditarCadastro');
+  const btnHistorico=document.getElementById('btnHistoricoStatus');
+  if(btnHistorico){
+    btnHistorico.classList.remove('hidden');
+  }
+  if(btnEditar){
+    btnEditar.classList.remove('hidden');
+  }
+}
+function iniciarAutoAtualizacaoPainel(){pararAutoAtualizacaoPainel(); autoRefreshTimer=setInterval(()=>{const p=document.getElementById('telaPainel'), f=document.getElementById('telaFicha'); if(!operadorLogado||!p||p.classList.contains('hidden')|| (f && !f.classList.contains('hidden'))) return; carregarCadastrosSilencioso();},30000);}
+function pararAutoAtualizacaoPainel(){if(autoRefreshTimer){clearInterval(autoRefreshTimer); autoRefreshTimer=null;}}
+
+function setButtonLoading(id, loading, text){
+  const btn = document.getElementById(id);
+  if(!btn) return;
+  if(loading){
+    if(!btn.dataset.originalText){
+      btn.dataset.originalText = btn.textContent;
+    }
+    btn.textContent = text || btn.textContent;
+    btn.disabled = true;
+    btn.classList.add('is-loading');
+  }else{
+    btn.disabled = false;
+    btn.classList.remove('is-loading');
+    btn.textContent = btn.dataset.originalText || btn.textContent;
+  }
+}
+
+function showOverlay(text){
+  const overlay = document.getElementById('appOverlay');
+  const label = document.getElementById('appOverlayText');
+  if(label) label.textContent = text || 'Processando...';
+  if(overlay) overlay.classList.remove('hidden');
+}
+
+function hideOverlay(){
+  const overlay = document.getElementById('appOverlay');
+  if(overlay) overlay.classList.add('hidden');
+}
+
+function animateIn(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('fade-in');
+  void el.offsetWidth;
+  el.classList.add('fade-in');
+}
+
+function login(){limparErroLogin(); const matricula=document.getElementById('matricula').value, senha=document.getElementById('senha').value, btn=document.getElementById('btnEntrar'); if(!normalizarTexto(matricula)) return mostrarErroLogin('Informe a matrícula.'); if(!normalizarTexto(senha)) return mostrarErroLogin('Informe a senha.'); btn.disabled=true; btn.textContent='Entrando...'; google.script.run.withSuccessHandler(res=>{btn.disabled=false; btn.textContent='Entrar no painel'; if(!res.ok) return mostrarErroLogin(res.msg||'Falha no login.'); if(res.exigirTrocaSenha){operadorPendenteTrocaSenha={matricula:res.matricula,nome:res.nome,perfil:res.perfil}; document.getElementById('trocaSenhaAtual').value=senha; document.getElementById('trocaNovaSenha').value=''; document.getElementById('trocaConfirmarSenha').value=''; limparMensagem('msgTrocaSenhaObrigatoria'); document.getElementById('modalTrocaSenhaObrigatoria').classList.remove('hidden'); animateIn('modalTrocaSenhaObrigatoria'); return;} finalizarLogin(res);}).withFailureHandler(err=>{btn.disabled=false; btn.textContent='Entrar no painel'; mostrarErroLogin(err&&err.message?err.message:'Erro ao realizar login.');}).loginOperador(matricula,senha);}
+function finalizarLogin(res){operadorLogado=res; operadorPendenteTrocaSenha=null; document.getElementById('usuarioLogado').textContent=res.nome||'Operador'; document.getElementById('perfilLogado').textContent='Perfil: '+(res.perfil||'-'); document.getElementById('matriculaLogado').textContent='Matrícula: '+(res.matricula||'-'); document.getElementById('telaLogin').classList.add('hidden'); document.getElementById('telaFicha').classList.add('hidden'); document.getElementById('telaPainel').classList.remove('hidden'); document.getElementById('modalTrocaSenhaObrigatoria').classList.add('hidden'); configurarAcessosAdmin(); carregarCadastros(); iniciarAutoAtualizacaoPainel();}
+function salvarTrocaObrigatoriaSenha(){if(!operadorPendenteTrocaSenha) return; const senhaAtual=document.getElementById('trocaSenhaAtual').value, novaSenha=document.getElementById('trocaNovaSenha').value, confirmar=document.getElementById('trocaConfirmarSenha').value; if(!normalizarTexto(senhaAtual)) return mostrarMensagem('msgTrocaSenhaObrigatoria','err','Informe a senha atual.'); if(!normalizarTexto(novaSenha)) return mostrarMensagem('msgTrocaSenhaObrigatoria','err','Informe a nova senha.'); if(novaSenha!==confirmar) return mostrarMensagem('msgTrocaSenhaObrigatoria','err','A confirmação da nova senha não confere.'); google.script.run.withSuccessHandler(()=>{mostrarMensagem('msgTrocaSenhaObrigatoria','ok','Senha alterada com sucesso. Entrando no painel...'); setTimeout(()=>finalizarLogin({ok:true,nome:operadorPendenteTrocaSenha.nome,perfil:operadorPendenteTrocaSenha.perfil,matricula:operadorPendenteTrocaSenha.matricula,isAdmin:String(operadorPendenteTrocaSenha.perfil||'').toUpperCase()==='ADMIN'}),500);}).withFailureHandler(err=>mostrarMensagem('msgTrocaSenhaObrigatoria','err',err&&err.message?err.message:'Erro ao trocar a senha.')).withFailureHandler(err=>{hideOverlay(); mostrarMensagem('msgTrocaSenhaObrigatoria','err',err&&err.message?err.message:'Erro ao trocar a senha.');}).trocarSenhaObrigatoria(operadorPendenteTrocaSenha.matricula,senhaAtual,novaSenha);}
+function logout(){pararAutoAtualizacaoPainel(); operadorLogado=null; operadorPendenteTrocaSenha=null; listaCadastros=[]; listaFiltrada=[]; cadastroAtual=null; ['matricula','senha','senhaAdminOperadores','editSenhaAdmin','senhaAdminAuditoria','trocaSenhaAtual','trocaNovaSenha','trocaConfirmarSenha'].forEach(id=>{const e=document.getElementById(id); if(e) e.value='';}); limparErroLogin(); ['telaPainel','telaFicha','modalOperadores','modalEditarCadastro','modalTrocaSenhaObrigatoria','modalAuditoria'].forEach(id=>document.getElementById(id).classList.add('hidden')); document.getElementById('telaLogin').classList.remove('hidden');}
+function carregarCadastros(){const tbody=document.getElementById('tbodyCadastros'); tbody.innerHTML='<tr><td colspan="8" class="loading">Carregando dados...</td></tr>'; showOverlay('Carregando cadastros...'); google.script.run.withSuccessHandler(lista=>{listaCadastros=Array.isArray(lista)?lista:[]; listaFiltrada=[...listaCadastros]; atualizarEstatisticas(listaCadastros,listaFiltrada); renderTabela(listaFiltrada); hideOverlay();}).withFailureHandler(()=>{tbody.innerHTML='<tr><td colspan="8" class="loading">Erro ao carregar os dados.</td></tr>'; hideOverlay();}).listarCadastros();}
+function carregarCadastrosSilencioso(){google.script.run.withSuccessHandler(lista=>{listaCadastros=Array.isArray(lista)?lista:[]; filtrarCadastros();}).withFailureHandler(()=>{}).listarCadastros();}
+function atualizarEstatisticas(base,atual){document.getElementById('statTotal').textContent=base.length; document.getElementById('statAtivos').textContent=base.filter(i=>String(i.status||'').toUpperCase()==='ATIVO').length; document.getElementById('statInativos').textContent=base.filter(i=>String(i.status||'').toUpperCase()==='INATIVO').length; document.getElementById('statFiltrados').textContent=atual.length;}
+
+function obterAvatarLista(item){
+  const nome = item && item.nome ? item.nome : 'Candidato';
+  if(item && item.linkFoto){
+    const src = converterLinkDriveParaPreview(item.linkFoto);
+    return '<span class="nome-avatar"><img src="' + escaparHtml(src) + '" alt="' + escaparHtml(nome) + '"></span>';
+  }
+  return '<span class="nome-avatar"><span class="nome-avatar-placeholder">SEM</span></span>';
+}
+
+function renderTabela(lista){const tbody=document.getElementById('tbodyCadastros'); if(!lista.length){tbody.innerHTML='<tr><td colspan="8"><div class="empty-box">Nenhum cadastro encontrado com os filtros informados.</div></td></tr>'; return;} tbody.innerHTML=lista.map(item=>{const status = String(item.status || '').toUpperCase();
+
+let badgeClass = 'badge badge-inativo';
+
+if (status === 'ATIVO') badgeClass = 'badge badge-ativo';
+else if (status === 'AGUARDANDO CARTA') badgeClass = 'badge badge-warning';
+else if (status === 'ENCAMINHADO') badgeClass = 'badge badge-info';
+else if (status === 'CONTRATADO') badgeClass = 'badge badge-success'; return `<tr><td><div class="nome-cell">${obterAvatarLista(item)}<div class="nome-texto"><span class="nome-link" onclick="abrirFicha('${escaparHtml(item.cpfNormalizado||normalizarCPF(item.cpf))}')">${escaparHtml(item.nome||'')}</span></div></div></td><td>${escaparHtml(item.cpf||'')}</td><td>${escaparHtml(item.telefone||'')}</td><td>${escaparHtml(item.email||'')}</td><td>${escaparHtml(item.escolaridade||'')}</td><td>${escaparHtml(item.areaAtuacao||'')}</td><td><span class="${badgeClass}">${escaparHtml(item.status||'')}</span></td><td>${escaparHtml(item.dataCadastro||'')}</td></tr>`;}).join('');}
+function filtrarCadastros(){
+  const buscaTexto=normalizarTexto(document.getElementById('buscaTexto').value).toLowerCase(),
+        filtroStatus=normalizarTexto(document.getElementById('filtroStatus').value).toUpperCase(),
+        filtroCpf=normalizarCPF(document.getElementById('filtroCpf').value),
+        filtroArea=normalizarTexto(document.getElementById('filtroArea').value).toLowerCase(),
+        filtroEscolaridade=normalizarTexto(document.getElementById('filtroEscolaridade').value).toLowerCase(),
+        filtroPcd=normalizarTexto(document.getElementById('filtroPcd').value).toUpperCase(),
+        filtroCnh=normalizarTexto(document.getElementById('filtroCnh').value).toUpperCase(),
+        filtroCategoriaCnh=normalizarTexto(document.getElementById('filtroCategoriaCnh').value).toUpperCase();
+
+  listaFiltrada=listaCadastros.filter(item=>{
+    const nome=String(item.nome||'').toLowerCase(),
+          cpf=normalizarCPF(item.cpf||item.cpfNormalizado||''),
+          email=String(item.email||'').toLowerCase(),
+          area=String(item.areaAtuacao||'').toLowerCase(),
+          escolaridade=String(item.escolaridade||'').toLowerCase(),
+          status=String(item.status||'').toUpperCase(),
+          pcd=String(item.pcd||'').toUpperCase(),
+          cnh=String(item.cnh||'').toUpperCase(),
+          categoriaCnh=String(item.categoriaCnh||'').toUpperCase();
+
+    const passouTexto=!buscaTexto||nome.includes(buscaTexto)||cpf.includes(buscaTexto.replace(/\D/g,''))||email.includes(buscaTexto)||area.includes(buscaTexto)||escolaridade.includes(buscaTexto);
+    const passouStatus=!filtroStatus||status===filtroStatus;
+    const passouCpf=!filtroCpf||cpf.includes(filtroCpf);
+    const passouArea=!filtroArea||area.includes(filtroArea);
+    const passouEscolaridade=!filtroEscolaridade||escolaridade.includes(filtroEscolaridade);
+    const passouPcd=!filtroPcd||pcd===filtroPcd;
+    const passouCnh=!filtroCnh||cnh===filtroCnh;
+    const passouCategoriaCnh=!filtroCategoriaCnh||categoriaCnh.includes(filtroCategoriaCnh);
+
+    return passouTexto && passouStatus && passouCpf && passouArea && passouEscolaridade && passouPcd && passouCnh && passouCategoriaCnh;
+  });
+
+  atualizarEstatisticas(listaCadastros,listaFiltrada);
+  renderTabela(listaFiltrada);
+}
+function abrirFicha(cpfNormalizado){if(!operadorLogado) return; showOverlay('Abrindo ficha do candidato...'); google.script.run.withSuccessHandler(dados=>{hideOverlay(); if(!dados) return alert('Cadastro não encontrado.'); cadastroAtual=dados; preencherFicha(dados); document.getElementById('telaPainel').classList.add('hidden'); document.getElementById('telaFicha').classList.remove('hidden'); animateIn('telaFicha');}).withFailureHandler(err=>{hideOverlay(); alert(err&&err.message?err.message:'Erro ao abrir cadastro.');}).obterCadastroPorCPF(cpfNormalizado,operadorLogado.matricula,operadorLogado.nome,operadorLogado.perfil);}
+function voltarPainel(){document.getElementById('telaFicha').classList.add('hidden'); document.getElementById('telaPainel').classList.remove('hidden'); carregarCadastrosSilencioso();}
+function definirValor(id,valor){document.getElementById(id).textContent=normalizarTexto(valor)||'-';}
+function converterLinkDriveParaPreview(link){if(!link) return ''; const texto=String(link).trim(); const p=texto.match(/[?&]id=([^&]+)/); if(p&&p[1]) return 'https://drive.google.com/thumbnail?id='+p[1]+'&sz=w1000'; const f=texto.match(/\/file\/d\/([^\/]+)/); if(f&&f[1]) return 'https://drive.google.com/thumbnail?id='+f[1]+'&sz=w1000'; if(/thumbnail\?id=/.test(texto)) return texto; return texto;}
+function preencherFicha(d){['id','status','nome','cpf','rg','dataNasc','idade','genero','telefone','email','cep','endereco','escolaridade','cursos','area','objetivo','experiencia','dataCadastro','dataAtualizacao'].forEach(()=>{}); definirValor('f_id',d.id); definirValor('f_status',d.status); definirValor('f_nome',d.nome); definirValor('f_cpf',d.cpf); definirValor('f_rg',d.rg); definirValor('f_dataNasc',d.dataNasc); definirValor('f_idade',d.idade); definirValor('f_genero',d.genero); definirValor('f_telefone',d.telefone); definirValor('f_email',d.email); definirValor('f_cep',d.cep); definirValor('f_endereco',d.endereco); definirValor('f_escolaridade',d.escolaridade); definirValor('f_cursos',d.cursos); definirValor('f_area',d.areaAtuacao); definirValor('f_objetivo',d.objetivo); definirValor('f_experiencia',d.experiencia);
+  definirValor('f_estadoCivil',d.estadoCivil);
+  definirValor('f_filhos',d.filhos);
+  definirValor('f_pcd',d.pcd);
+  definirValor('f_cnh',d.cnh);
+  definirValor('f_categoriaCnh',d.categoriaCnh);
+  definirValor('f_idioma',d.idioma);
+  definirValor('f_primeiroEmprego',d.primeiroEmprego); definirValor('f_dataCadastro',d.dataCadastro); definirValor('f_dataAtualizacao',d.dataAtualizacao); document.getElementById('subtituloFicha').textContent=(normalizarTexto(d.nome)||'Cadastro')+' • CPF: '+(normalizarTexto(d.cpf)||'-'); atualizarFoto(d.linkFoto); atualizarBotoesAnexos(d); configurarAcessosAdmin();}
+function atualizarFoto(link){const img=document.getElementById('fotoPreview'), ph=document.getElementById('fotoPlaceholder'); if(link){img.src=converterLinkDriveParaPreview(link); img.onerror=function(){img.src=''; img.classList.add('hidden'); ph.classList.remove('hidden');}; img.classList.remove('hidden'); ph.classList.add('hidden');} else {img.src=''; img.classList.add('hidden'); ph.classList.remove('hidden');}}
+function atualizarBotoesAnexos(d){const btnFoto=document.getElementById('btnAbrirFoto'), btnCurriculo=document.getElementById('btnAbrirCurriculo'), btnComprovante=document.getElementById('btnAbrirComprovante'); document.getElementById('textoFoto').textContent=d.linkFoto?'Arquivo disponível para visualização.':'Nenhum arquivo disponível.'; document.getElementById('textoCurriculo').textContent=d.linkCurriculo?'Arquivo disponível para visualização.':'Nenhum arquivo disponível.'; document.getElementById('textoComprovante').textContent=d.linkComprovante?'Arquivo disponível para visualização.':'Nenhum arquivo disponível.'; btnFoto.disabled=!d.linkFoto; btnCurriculo.disabled=!d.linkCurriculo; btnComprovante.disabled=!d.linkComprovante; btnFoto.style.opacity=d.linkFoto?'1':'.5'; btnCurriculo.style.opacity=d.linkCurriculo?'1':'.5'; btnComprovante.style.opacity=d.linkComprovante?'1':'.5';}
+function abrirLinkAtual(tipo){if(!cadastroAtual) return; let link=''; if(tipo==='foto') link=cadastroAtual.linkFoto||''; if(tipo==='curriculo') link=cadastroAtual.linkCurriculo||''; if(tipo==='comprovante') link=cadastroAtual.linkComprovante||''; if(link) window.open(link,'_blank');}
+function abrirModalOperadores(){if(!ehAdmin()) return; limparMensagem('msgOperadores'); document.getElementById('modalOperadores').classList.remove('hidden'); animateIn('modalOperadores');}
+function fecharModalOperadores(){document.getElementById('modalOperadores').classList.add('hidden');}
+function limparFormularioOperador(){['opMatricula','opNome','opSenha','opObservacao'].forEach(id=>document.getElementById(id).value=''); document.getElementById('opPerfil').value='OPERADOR'; document.getElementById('opStatus').value='ATIVO'; document.getElementById('opTrocarSenha').value='NÃO'; limparMensagem('msgOperadores');}
+function carregarOperadoresAdmin(){const senhaAdmin=document.getElementById('senhaAdminOperadores').value; if(!normalizarTexto(senhaAdmin)) return mostrarMensagem('msgOperadores','err','Informe a senha do administrador.'); setButtonLoading('btnCarregarOperadores', true, 'Carregando...'); const tbody=document.getElementById('tbodyOperadores'); tbody.innerHTML='<tr><td colspan="6" class="loading">Carregando operadores...</td></tr>'; google.script.run.withSuccessHandler(lista=>{const dados=Array.isArray(lista)?lista:[]; if(!dados.length){setButtonLoading('btnCarregarOperadores', false); tbody.innerHTML='<tr><td colspan="6" class="loading">Nenhum operador cadastrado.</td></tr>'; return;} tbody.innerHTML=dados.map(item=>`<tr><td>${escaparHtml(item.matricula||'')}</td><td>${escaparHtml(item.nome||'')}</td><td>${escaparHtml(item.perfil||'')}</td><td>${escaparHtml(item.status||'')}</td><td>${escaparHtml(item.trocarSenha||'NÃO')}</td><td><button class="btn btn-soft" onclick="preencherOperadorParaEdicao('${escaparHtml(item.matricula)}','${escaparHtml(item.nome)}','${escaparHtml(item.perfil)}','${escaparHtml(item.status)}','${escaparHtml(item.observacao||'')}','${escaparHtml(item.trocarSenha||'NÃO')}')">Editar</button></td></tr>`).join(''); setButtonLoading('btnCarregarOperadores', false); mostrarMensagem('msgOperadores','ok','Lista carregada com sucesso.');}).withFailureHandler(err=>{setButtonLoading('btnCarregarOperadores', false); tbody.innerHTML='<tr><td colspan="6" class="loading">Erro ao carregar operadores.</td></tr>'; mostrarMensagem('msgOperadores','err',err&&err.message?err.message:'Falha ao carregar operadores.');}).listarOperadoresAdmin(operadorLogado.matricula,senhaAdmin);}
+function preencherOperadorParaEdicao(matricula,nome,perfil,status,observacao,trocarSenha){document.getElementById('opMatricula').value=matricula||''; document.getElementById('opNome').value=nome||''; document.getElementById('opSenha').value=''; document.getElementById('opPerfil').value=perfil||'OPERADOR'; document.getElementById('opStatus').value=status||'ATIVO'; document.getElementById('opTrocarSenha').value=trocarSenha||'NÃO'; document.getElementById('opObservacao').value=observacao||''; limparMensagem('msgOperadores');}
+function salvarOperadorAdmin(){const senhaAdmin=document.getElementById('senhaAdminOperadores').value; if(!normalizarTexto(senhaAdmin)) return mostrarMensagem('msgOperadores','err','Informe a senha do administrador.'); setButtonLoading('btnSalvarOperador', true, 'Salvando...'); const dados={matricula:document.getElementById('opMatricula').value,nome:document.getElementById('opNome').value,senha:document.getElementById('opSenha').value,perfil:document.getElementById('opPerfil').value,status:document.getElementById('opStatus').value,observacao:document.getElementById('opObservacao').value,trocarSenha:document.getElementById('opTrocarSenha').value}; google.script.run.withSuccessHandler(msg=>{mostrarMensagem('msgOperadores','ok',msg||'Operador salvo com sucesso.'); document.getElementById('opSenha').value=''; setButtonLoading('btnSalvarOperador', false); carregarOperadoresAdmin();}).withFailureHandler(err=>{setButtonLoading('btnSalvarOperador', false); mostrarMensagem('msgOperadores','err',err&&err.message?err.message:'Erro ao salvar operador.');}).salvarOperadorAdmin(operadorLogado.matricula,senhaAdmin,dados);}
+function abrirModalEditarCadastro(){
+  if(!cadastroAtual) return;
+  limparMensagem('msgEditarCadastro');
+  document.getElementById('editSenhaAdmin').value='';
+  document.getElementById('editNome').value=cadastroAtual.nome||'';
+  document.getElementById('editCpf').value=cadastroAtual.cpf||'';
+  document.getElementById('editRg').value=cadastroAtual.rg||'';
+  document.getElementById('editDataNasc').value=formatarDataParaInput(cadastroAtual.dataNasc);
+  document.getElementById('editTelefone').value=cadastroAtual.telefone||'';
+  document.getElementById('editEmail').value=cadastroAtual.email||'';
+  document.getElementById('editCep').value=cadastroAtual.cep||'';
+  document.getElementById('editEndereco').value=cadastroAtual.endereco||'';
+  document.getElementById('editGenero').value=cadastroAtual.genero||'';
+  document.getElementById('editIdade').value=cadastroAtual.idade||'';
+  document.getElementById('editEscolaridade').value=cadastroAtual.escolaridade||'';
+  document.getElementById('editEstadoCivil').value=cadastroAtual.estadoCivil||'';
+  document.getElementById('editFilhos').value=cadastroAtual.filhos||'';
+  document.getElementById('editPcd').value=cadastroAtual.pcd||'';
+  document.getElementById('editCnh').value=cadastroAtual.cnh||'';
+  document.getElementById('editCategoriaCnh').value=cadastroAtual.categoriaCnh||'';
+  document.getElementById('editIdioma').value=cadastroAtual.idioma||'';
+  document.getElementById('editPrimeiroEmprego').value=cadastroAtual.primeiroEmprego||'';
+  document.getElementById('editStatus').value=cadastroAtual.status||'ATIVO';
+  document.getElementById('editCursos').value=cadastroAtual.cursos||'';
+  document.getElementById('editArea').value=cadastroAtual.areaAtuacao||'';
+  document.getElementById('editObjetivo').value=cadastroAtual.objetivo||'';
+  document.getElementById('editExperiencia').value=cadastroAtual.experiencia||'';
+  document.getElementById('modalEditarCadastro').classList.remove('hidden'); animateIn('modalEditarCadastro');
+}
+function fecharModalEditarCadastro(){document.getElementById('modalEditarCadastro').classList.add('hidden');}
+function salvarEdicaoCadastro(){
+  if(!cadastroAtual) return;
+  try{
+    const senhaAdmin=document.getElementById('editSenhaAdmin').value;
+    if(!normalizarTexto(senhaAdmin)) return mostrarMensagem('msgEditarCadastro','err','Informe a senha do administrador.');
+    const dados={
+      id:cadastroAtual.id||'',
+      cpfOriginal:cadastroAtual.cpf||'',
+      nome:document.getElementById('editNome').value,
+      cpf:document.getElementById('editCpf').value,
+      rg:document.getElementById('editRg').value,
+      dataNasc:document.getElementById('editDataNasc').value,
+      telefone:document.getElementById('editTelefone').value,
+      email:document.getElementById('editEmail').value,
+      cep:document.getElementById('editCep').value,
+      endereco:document.getElementById('editEndereco').value,
+      genero:document.getElementById('editGenero').value,
+      idade:document.getElementById('editIdade').value,
+      escolaridade:document.getElementById('editEscolaridade').value,
+      estadoCivil:document.getElementById('editEstadoCivil').value || cadastroAtual.estadoCivil,
+      filhos:document.getElementById('editFilhos').value || cadastroAtual.filhos,
+      pcd:document.getElementById('editPcd').value || cadastroAtual.pcd,
+      cnh:document.getElementById('editCnh').value || cadastroAtual.cnh,
+      categoriaCnh:document.getElementById('editCategoriaCnh').value || cadastroAtual.categoriaCnh,
+      idioma:document.getElementById('editIdioma').value || cadastroAtual.idioma,
+      primeiroEmprego:document.getElementById('editPrimeiroEmprego').value || cadastroAtual.primeiroEmprego,
+      cursos:document.getElementById('editCursos').value,
+      experiencia:document.getElementById('editExperiencia').value,
+      areaAtuacao:document.getElementById('editArea').value,
+      objetivo:document.getElementById('editObjetivo').value,
+      status:document.getElementById('editStatus').value
+    };
+    setButtonLoading('btnSalvarEdicaoCadastro', true, 'Salvando...');
+    showOverlay('Salvando alterações do cadastro...');
+    google.script.run.withSuccessHandler(res=>{
+      setButtonLoading('btnSalvarEdicaoCadastro', false);
+      hideOverlay();
+      cadastroAtual=res;
+      preencherFicha(res);
+      carregarCadastrosSilencioso();
+      mostrarMensagem('msgEditarCadastro','ok','Cadastro atualizado com sucesso.');
+      setTimeout(()=>fecharModalEditarCadastro(),700);
+    }).withFailureHandler(err=>{setButtonLoading('btnSalvarEdicaoCadastro', false); hideOverlay(); mostrarMensagem('msgEditarCadastro','err',err&&err.message?err.message:'Erro ao atualizar cadastro.');}).atualizarCadastroAdmin(operadorLogado.matricula,senhaAdmin,dados);
+  }catch(e){
+    setButtonLoading('btnSalvarEdicaoCadastro', false);
+    hideOverlay();
+    mostrarMensagem('msgEditarCadastro','err',e && e.message ? e.message : 'Erro ao montar os dados da edição.');
+  }
+}
+function abrirModalAuditoria(){if(!ehAdmin()) return; limparMensagem('msgAuditoria'); document.getElementById('modalAuditoria').classList.remove('hidden'); animateIn('modalAuditoria');}
+function fecharModalAuditoria(){document.getElementById('modalAuditoria').classList.add('hidden');}
+function formatarDetalheAuditoria(item){if(item&&item.detalheJson&&Array.isArray(item.detalheJson.alteracoes)&&item.detalheJson.alteracoes.length){return item.detalheJson.alteracoes.map(a=>`${a.campo}: "${a.antes}" → "${a.depois}"`).join('\n');} return item&&item.detalhe?item.detalhe:'';}
+function carregarAuditoriaAdmin(){const senhaAdmin=document.getElementById('senhaAdminAuditoria').value; if(!normalizarTexto(senhaAdmin)) return mostrarMensagem('msgAuditoria','err','Informe a senha do administrador.'); setButtonLoading('btnCarregarAuditoria', true, 'Carregando...'); const tbody=document.getElementById('tbodyAuditoria'); tbody.innerHTML='<tr><td colspan="7" class="loading">Carregando auditoria...</td></tr>'; const filtros={termo:document.getElementById('auditTermo').value,acao:document.getElementById('auditAcao').value,matricula:document.getElementById('auditMatricula').value,cpf:document.getElementById('auditCpf').value}; google.script.run.withSuccessHandler(lista=>{const dados=Array.isArray(lista)?lista:[]; if(!dados.length){setButtonLoading('btnCarregarAuditoria', false); tbody.innerHTML='<tr><td colspan="7" class="loading">Nenhum registro encontrado.</td></tr>'; return mostrarMensagem('msgAuditoria','ok','Consulta concluída.');} tbody.innerHTML=dados.map(item=>`<tr><td>${escaparHtml(item.dataHora||'')}</td><td>${escaparHtml(item.matricula||'')}</td><td>${escaparHtml(item.nome||'')}</td><td>${escaparHtml(item.perfil||'')}</td><td><span class="audit-chip">${escaparHtml(item.acao||'')}</span></td><td>${escaparHtml(item.cpf||'')}</td><td><div class="audit-detail">${escaparHtml(formatarDetalheAuditoria(item))}</div></td></tr>`).join(''); setButtonLoading('btnCarregarAuditoria', false); mostrarMensagem('msgAuditoria','ok',`Consulta concluída. ${dados.length} registro(s) encontrado(s).`);}).withFailureHandler(err=>{setButtonLoading('btnCarregarAuditoria', false); tbody.innerHTML='<tr><td colspan="7" class="loading">Erro ao carregar auditoria.</td></tr>'; mostrarMensagem('msgAuditoria','err',err&&err.message?err.message:'Erro ao carregar auditoria.');}).listarLogsAdmin(operadorLogado.matricula,senhaAdmin,filtros);}
+
+function abrirModalHistoricoStatus(){
+  limparMensagem('msgHistoricoStatus');
+  document.getElementById('modalHistoricoStatus').classList.remove('hidden'); animateIn('modalHistoricoStatus');
+}
+
+function fecharModalHistoricoStatus(){
+  document.getElementById('modalHistoricoStatus').classList.add('hidden');
+}
+
+function carregarHistoricoStatusAdmin(){
+  const senhaAdmin = document.getElementById('senhaAdminHistoricoStatus').value;
+
+  if(!normalizarTexto(senhaAdmin)){
+    mostrarMensagem('msgHistoricoStatus','err','Informe a senha do administrador.');
+    return;
+  }
+  setButtonLoading('btnCarregarHistoricoStatus', true, 'Carregando...');
+
+  const tbody = document.getElementById('tbodyHistoricoStatus');
+  tbody.innerHTML = '<tr><td colspan="7" class="loading">Carregando histórico de status...</td></tr>';
+
+  const filtros = {
+    nome: document.getElementById('statusNome').value,
+    cpf: document.getElementById('statusCpf').value,
+    status: document.getElementById('statusFiltro').value
+  };
+
+  google.script.run
+    .withSuccessHandler(lista => {
+      const dados = Array.isArray(lista) ? lista : [];
+
+      if(!dados.length){
+        setButtonLoading('btnCarregarHistoricoStatus', false);
+        tbody.innerHTML = '<tr><td colspan="7" class="loading">Nenhuma mudança de status encontrada.</td></tr>';
+        mostrarMensagem('msgHistoricoStatus','ok','Consulta concluída.');
+        return;
+      }
+
+      tbody.innerHTML = dados.map(item => `
+        <tr>
+          <td>${escaparHtml(item.dataHora || '')}</td>
+          <td>${escaparHtml(item.nome || '')}</td>
+          <td>${escaparHtml(item.cpf || '')}</td>
+          <td><span class="audit-chip">${escaparHtml(item.statusAntes || '')}</span></td>
+          <td><span class="audit-chip">${escaparHtml(item.statusDepois || '')}</span></td>
+          <td>${escaparHtml(item.operador || '')}</td>
+          <td>${escaparHtml(item.perfil || '')}</td>
+        </tr>
+      `).join('');
+
+      setButtonLoading('btnCarregarHistoricoStatus', false);
+      mostrarMensagem('msgHistoricoStatus','ok',`Consulta concluída. ${dados.length} registro(s) encontrado(s).`);
+    })
+    .withFailureHandler(err => {setButtonLoading('btnCarregarHistoricoStatus', false);
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">Erro ao carregar histórico de status.</td></tr>';
+      mostrarMensagem('msgHistoricoStatus','err',err && err.message ? err.message : 'Erro ao carregar histórico de status.');
+    })
+    .listarHistoricoStatusAdmin(operadorLogado.matricula, senhaAdmin, filtros);
+}
+
+
+function bindEnterSubmit(inputId, callback){
+  const el = document.getElementById(inputId);
+  if(!el) return;
+  el.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      callback();
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  bindEnterSubmit('senhaAdminOperadores', carregarOperadoresAdmin);
+  bindEnterSubmit('senhaAdminAuditoria', carregarAuditoriaAdmin);
+  bindEnterSubmit('senhaAdminHistoricoStatus', carregarHistoricoStatusAdmin);
+  bindEnterSubmit('editSenhaAdmin', salvarEdicaoCadastro);
+});
+
+</script>
+</body>
+</html>
