@@ -2,7 +2,7 @@ const ABA_CADASTROS = "CADASTROS";
 const ABA_OPERADORES = "OPERADORES";
 const ABA_LOG = "LOG_OPERADORES";
 
-const ID_PLANILHA = "1V5RSNxQuNnQuqckBrHu_SzZTNZm56mE2oXbFV2oeUS4";
+const ID_PLANILHA = "COLOQUE_AQUI_O_ID_DA_PLANILHA";
 
 /* ================== WEB ================== */
 
